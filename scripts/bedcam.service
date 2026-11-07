@@ -1,0 +1,27 @@
+# /etc/systemd/system/bedcam.service
+#
+#   sudo cp bedcam.service /etc/systemd/system/
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now bedcam
+#   journalctl -u bedcam -f          # watch it live
+#
+# Restart=always is the point. log_night.py deliberately exits non-zero when the
+# camera stops answering, so recovery is systemd reopening the device rather
+# than the process sitting there logging politely with nothing to log.
+
+[Unit]
+Description=Bed exit logger
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=marco
+WorkingDirectory=/home/marco/bed-exit/scripts
+ExecStart=/home/marco/bedexit/bin/python /home/marco/bed-exit/scripts/log_night.py
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
